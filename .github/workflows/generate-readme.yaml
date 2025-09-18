@@ -27,42 +27,50 @@ jobs:
       - name: Generate README from template and action.yaml
         id: generate
         run: |
-          # Parse action.yaml to extract inputs information
-          python3 << 'EOF'
+          # Create shared README generation script
+          cat > generate_readme.py << 'EOF'
           import yaml
           import re
+          import sys
           
-          # Read action.yaml
-          with open('action.yaml', 'r') as f:
-              action = yaml.safe_load(f)
+          def generate_readme(output_file='README.md'):
+              # Read action.yaml
+              with open('action.yaml', 'r') as f:
+                  action = yaml.safe_load(f)
+              
+              # Read template
+              with open('README.template.md', 'r') as f:
+                  template = f.read()
+              
+              # Generate inputs table
+              inputs_table = "| Input | Description | Required | Default |\n|-------|-------------|----------|---------|"
+              
+              if 'inputs' in action:
+                  for input_name, input_config in action['inputs'].items():
+                      required = "Yes" if input_config.get('required', False) else "No"
+                      default = input_config.get('default', '')
+                      description = input_config.get('description', '')
+                      inputs_table += f"\n| `{input_name}` | {description} | {required} | `{default}` |"
+              
+              # Replace inputs table in template
+              pattern = r'(\| Input \| Description \| Required \| Default \|\n\|-------|-------------|----------|----------|)([^#]*?)(?=\n## |$)'
+              replacement = inputs_table + '\n'
+              
+              updated_content = re.sub(pattern, replacement, template, flags=re.MULTILINE)
+              
+              # Write the generated README
+              with open(output_file, 'w') as f:
+                  f.write(updated_content)
+              
+              print(f"README generated successfully to {output_file}")
           
-          # Read template
-          with open('README.template.md', 'r') as f:
-              template = f.read()
-          
-          # Generate inputs table
-          inputs_table = "| Input | Description | Required | Default |\n|-------|-------------|----------|---------|"
-          
-          if 'inputs' in action:
-              for input_name, input_config in action['inputs'].items():
-                  required = "Yes" if input_config.get('required', False) else "No"
-                  default = input_config.get('default', '')
-                  description = input_config.get('description', '')
-                  inputs_table += f"\n| `{input_name}` | {description} | {required} | `{default}` |"
-          
-          # Replace inputs table in template
-          # Find the inputs section and replace it
-          pattern = r'(\| Input \| Description \| Required \| Default \|\n\|-------|-------------|----------|----------|)([^#]*?)(?=\n## |$)'
-          replacement = inputs_table + '\n'
-          
-          updated_content = re.sub(pattern, replacement, template, flags=re.MULTILINE)
-          
-          # Write the generated README
-          with open('README.md', 'w') as f:
-              f.write(updated_content)
-          
-          print("README.md generated successfully")
+          if __name__ == "__main__":
+              output_file = sys.argv[1] if len(sys.argv) > 1 else 'README.md'
+              generate_readme(output_file)
           EOF
+          
+          # Generate README.md
+          python3 generate_readme.py README.md
 
       - name: Check if README.md was updated
         id: check
@@ -92,39 +100,50 @@ jobs:
 
       - name: Generate expected README
         run: |
-          # Parse action.yaml to extract inputs information
-          python3 << 'EOF'
+          # Create the same shared README generation script
+          cat > generate_readme.py << 'EOF'
           import yaml
           import re
+          import sys
           
-          # Read action.yaml
-          with open('action.yaml', 'r') as f:
-              action = yaml.safe_load(f)
+          def generate_readme(output_file='README.md'):
+              # Read action.yaml
+              with open('action.yaml', 'r') as f:
+                  action = yaml.safe_load(f)
+              
+              # Read template
+              with open('README.template.md', 'r') as f:
+                  template = f.read()
+              
+              # Generate inputs table
+              inputs_table = "| Input | Description | Required | Default |\n|-------|-------------|----------|---------|"
+              
+              if 'inputs' in action:
+                  for input_name, input_config in action['inputs'].items():
+                      required = "Yes" if input_config.get('required', False) else "No"
+                      default = input_config.get('default', '')
+                      description = input_config.get('description', '')
+                      inputs_table += f"\n| `{input_name}` | {description} | {required} | `{default}` |"
+              
+              # Replace inputs table in template
+              pattern = r'(\| Input \| Description \| Required \| Default \|\n\|-------|-------------|----------|----------|)([^#]*?)(?=\n## |$)'
+              replacement = inputs_table + '\n'
+              
+              updated_content = re.sub(pattern, replacement, template, flags=re.MULTILINE)
+              
+              # Write the generated README
+              with open(output_file, 'w') as f:
+                  f.write(updated_content)
+              
+              print(f"README generated successfully to {output_file}")
           
-          # Read template
-          with open('README.template.md', 'r') as f:
-              template = f.read()
-          
-          # Generate inputs table
-          inputs_table = "| Input | Description | Required | Default |\n|-------|-------------|----------|---------|"
-          
-          if 'inputs' in action:
-              for input_name, input_config in action['inputs'].items():
-                  required = "Yes" if input_config.get('required', False) else "No"
-                  default = input_config.get('default', '')
-                  description = input_config.get('description', '')
-                  inputs_table += f"\n| `{input_name}` | {description} | {required} | `{default}` |"
-          
-          # Replace inputs table in template
-          pattern = r'(\| Input \| Description \| Required \| Default \|\n\|-------|-------------|----------|----------|)([^#]*?)(?=\n## |$)'
-          replacement = inputs_table + '\n'
-          
-          updated_content = re.sub(pattern, replacement, template, flags=re.MULTILINE)
-          
-          # Write the expected README
-          with open('README.expected.md', 'w') as f:
-              f.write(updated_content)
+          if __name__ == "__main__":
+              output_file = sys.argv[1] if len(sys.argv) > 1 else 'README.md'
+              generate_readme(output_file)
           EOF
+          
+          # Generate expected README for comparison
+          python3 generate_readme.py README.expected.md
 
       - name: Compare README with expected
         run: |
