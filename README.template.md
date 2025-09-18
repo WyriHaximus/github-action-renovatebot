@@ -50,20 +50,41 @@ jobs:
 
 ### Basic Usage (Info Level)
 
+For simple setups using a personal access token or GitHub App token:
+
 ```yaml
-- uses: WyriHaximus/github-action-renovatebot@main
-  with:
-    renovateAppToken: ${{ secrets.RENOVATE_TOKEN }}
-    logLevel: info # Optional, defaults to 'info'
+name: Renovate
+on:
+  schedule:
+    - cron: '0 2 * * *'  # Run daily at 2 AM UTC
+jobs:
+  renovate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Renovate
+        uses: WyriHaximus/github-action-renovatebot@main
+        with:
+          renovateAppToken: ${{ secrets.RENOVATE_TOKEN }}
+          logLevel: info # Optional, defaults to 'info'
 ```
 
 ### Debug Usage (Debug Level)
 
+For debugging or troubleshooting Renovate issues:
+
 ```yaml
-- uses: WyriHaximus/github-action-renovatebot@main
-  with:
-    renovateAppToken: ${{ secrets.RENOVATE_TOKEN }}
-    logLevel: debug # Enables detailed JSON logging
+name: Renovate Debug
+on:
+  workflow_dispatch:  # Manual trigger for debugging
+jobs:
+  renovate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Renovate with Debug Logging
+        uses: WyriHaximus/github-action-renovatebot@main
+        with:
+          renovateAppToken: ${{ secrets.RENOVATE_TOKEN }}
+          logLevel: debug # Enables detailed JSON logging
 ```
 
 ### Log Level Differences
