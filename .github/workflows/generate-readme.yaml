@@ -1,0 +1,140 @@
+name: Generate and Validate README
+
+on:
+  push:
+    paths:
+      - 'action.yaml'
+      - 'README.template.md'
+      - '.github/workflows/generate-readme.yaml'
+  pull_request:
+    paths:
+      - 'action.yaml'
+      - 'README.template.md'
+      - 'README.md'
+      - '.github/workflows/generate-readme.yaml'
+
+jobs:
+  generate-readme:
+    name: Generate README
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Generate README from template and action.yaml
+        id: generate
+        run: |
+          # Parse action.yaml to extract inputs information
+          python3 << 'EOF'
+          import yaml
+          import re
+          
+          # Read action.yaml
+          with open('action.yaml', 'r') as f:
+              action = yaml.safe_load(f)
+          
+          # Read template
+          with open('README.template.md', 'r') as f:
+              template = f.read()
+          
+          # Generate inputs table
+          inputs_table = "| Input | Description | Required | Default |\n|-------|-------------|----------|---------|"
+          
+          if 'inputs' in action:
+              for input_name, input_config in action['inputs'].items():
+                  required = "Yes" if input_config.get('required', False) else "No"
+                  default = input_config.get('default', '')
+                  description = input_config.get('description', '')
+                  inputs_table += f"\n| `{input_name}` | {description} | {required} | `{default}` |"
+          
+          # Replace inputs table in template
+          # Find the inputs section and replace it
+          pattern = r'(\| Input \| Description \| Required \| Default \|\n\|-------|-------------|----------|----------|)([^#]*?)(?=\n## |$)'
+          replacement = inputs_table + '\n'
+          
+          updated_content = re.sub(pattern, replacement, template, flags=re.MULTILINE)
+          
+          # Write the generated README
+          with open('README.md', 'w') as f:
+              f.write(updated_content)
+          
+          print("README.md generated successfully")
+          EOF
+
+      - name: Check if README.md was updated
+        id: check
+        run: |
+          if git diff --exit-code README.md > /dev/null 2>&1; then
+            echo "updated=false" >> $GITHUB_OUTPUT
+          else
+            echo "updated=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit updated README.md
+        if: steps.check.outputs.updated == 'true' && github.event_name == 'push'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add README.md
+          git commit -m "Auto-update README.md from template and action.yaml"
+          git push
+
+  validate-readme:
+    name: Validate README
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Generate expected README
+        run: |
+          # Parse action.yaml to extract inputs information
+          python3 << 'EOF'
+          import yaml
+          import re
+          
+          # Read action.yaml
+          with open('action.yaml', 'r') as f:
+              action = yaml.safe_load(f)
+          
+          # Read template
+          with open('README.template.md', 'r') as f:
+              template = f.read()
+          
+          # Generate inputs table
+          inputs_table = "| Input | Description | Required | Default |\n|-------|-------------|----------|---------|"
+          
+          if 'inputs' in action:
+              for input_name, input_config in action['inputs'].items():
+                  required = "Yes" if input_config.get('required', False) else "No"
+                  default = input_config.get('default', '')
+                  description = input_config.get('description', '')
+                  inputs_table += f"\n| `{input_name}` | {description} | {required} | `{default}` |"
+          
+          # Replace inputs table in template
+          pattern = r'(\| Input \| Description \| Required \| Default \|\n\|-------|-------------|----------|----------|)([^#]*?)(?=\n## |$)'
+          replacement = inputs_table + '\n'
+          
+          updated_content = re.sub(pattern, replacement, template, flags=re.MULTILINE)
+          
+          # Write the expected README
+          with open('README.expected.md', 'w') as f:
+              f.write(updated_content)
+          EOF
+
+      - name: Compare README with expected
+        run: |
+          if ! diff -u README.md README.expected.md > readme.diff 2>&1; then
+            echo "❌ README.md is not up to date with the template and action.yaml!"
+            echo "Expected changes:"
+            cat readme.diff
+            echo ""
+            echo "Please run the 'Generate and Validate README' workflow or manually update README.md to match the template."
+            exit 1
+          else
+            echo "✅ README.md is up to date!"
+          fi

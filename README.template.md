@@ -2,6 +2,8 @@
 
 Wrapper around renovatebot/github-action
 
+<!-- BEGIN_GENERATED_CONTENT -->
+<!-- This content is automatically generated. Do not edit manually. -->
 ## Usage
 
 ### Complete Workflow Example
@@ -86,6 +88,7 @@ This action provides a pre-configured Renovate setup with:
 - Post-upgrade tasks for git operations
 - PHP package configuration via WyriHaximus/renovate-config
 - Onboarding configuration with rebase checkbox
+<!-- END_GENERATED_CONTENT -->
 
 ## License
 
