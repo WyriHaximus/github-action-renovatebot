@@ -24,11 +24,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Ensure all files end with newlines
-        run: |
-          chmod +x .github/scripts/ensure-newlines.sh
-          ./.github/scripts/ensure-newlines.sh
-
       - name: Generate README from template and action.yaml
         id: generate
         run: |
@@ -84,8 +79,6 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add README.md
-          # Also commit any files that were updated with newlines
-          git add -A
           git commit -m "Auto-update README.md from template and action.yaml"
           git push
 
@@ -96,11 +89,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Ensure all files end with newlines
-        run: |
-          chmod +x .github/scripts/ensure-newlines.sh
-          ./.github/scripts/ensure-newlines.sh
 
       - name: Generate expected README
         run: |
