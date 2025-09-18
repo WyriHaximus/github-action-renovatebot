@@ -4,12 +4,12 @@ on:
   push:
     paths:
       - 'action.yaml'
-      - 'README.template.md'
+      - 'etc/README.template.md'
       - '.github/workflows/generate-readme.yaml'
   pull_request:
     paths:
       - 'action.yaml'
-      - 'README.template.md'
+      - 'etc/README.template.md'
       - 'README.md'
       - '.github/workflows/generate-readme.yaml'
 
@@ -39,7 +39,7 @@ jobs:
                   action = yaml.safe_load(f)
               
               # Read template
-              with open('README.template.md', 'r') as f:
+              with open('etc/README.template.md', 'r') as f:
                   template = f.read()
               
               # Generate inputs table
@@ -112,7 +112,7 @@ jobs:
                   action = yaml.safe_load(f)
               
               # Read template
-              with open('README.template.md', 'r') as f:
+              with open('etc/README.template.md', 'r') as f:
                   template = f.read()
               
               # Generate inputs table
