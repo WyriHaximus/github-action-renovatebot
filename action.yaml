@@ -1,14 +1,14 @@
 name: Renovate
 description: 'Wrapper action around Renovate'
 branding:
-  icon: 'grid'
-  color: 'orange'
+  icon: 'refresh-cw'
+  color: 'blue'
 inputs:
   renovateAppToken:
-    description: Define on which runner this workflow should run
+    description: Renovate app token for authentication
     required: true
   logLevel:
-    description: Define on which runner this workflow should run
+    description: Log level for Renovate execution
     default: info
     required: false
 runs:
