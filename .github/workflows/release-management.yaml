@@ -23,5 +23,4 @@ jobs:
     with:
       milestone: ${{ github.event.milestone.title }}
       description: ${{ github.event.milestone.description }}
-      mustCreateCommit: true
       reTagOCIImage: false
