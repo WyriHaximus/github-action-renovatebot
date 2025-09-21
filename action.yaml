@@ -15,7 +15,7 @@ runs:
   using: "composite"
   steps:
     - name: Self-hosted Renovate
-      uses: renovatebot/github-action@v43.26.3
+      uses: renovatebot/github-action@v43.0.11
       with:
         token: ${{ inputs.renovateAppToken }}
       env:
