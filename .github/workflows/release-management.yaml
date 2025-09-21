@@ -25,7 +25,3 @@ jobs:
       description: ${{ github.event.milestone.description }}
       mustCreateCommit: true
       reTagOCIImage: false
-      preReleaseScript: |
-        sed -i 's/main/${{ github.event.milestone.title }}/g' action.yaml
-        cat action.yaml
-        git add action.yaml
