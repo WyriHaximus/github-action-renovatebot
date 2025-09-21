@@ -11,6 +11,10 @@ inputs:
     description: Log level for Renovate execution
     default: info
     required: false
+  hostRules:
+    description: Host rule configuration JSON object as a string
+    default: ""
+    required: false
 runs:
   using: "composite"
   steps:
@@ -26,6 +30,7 @@ runs:
         RENOVATE_BINARY_SOURCE: docker
         RENOVATE_POST_UPGRADE_TASKS: "{\"commands\": [\"git add\"], \"fileFilters\": [\"**/**\"], \"executionMode\": \"update\"}"
         RENOVATE_DOCKER_CLI_OPTIONS: "-t -e=COMPOSER_IGNORE_PLATFORM_REQS=1"
+        RENOVATE_HOST_RULES: ${{ inputs.hostRules }}
         RENOVATE_DRY_RUN: "null"
         RENOVATE_IGNORE_PLUGINS: false
         RENOVATE_IGNORE_SCRIPTS: false
