@@ -22,6 +22,7 @@ runs:
       uses: renovatebot/github-action@v43.0.11
       with:
         token: ${{ inputs.renovateAppToken }}
+        mount-docker-socket: true
       env:
         RENOVATE_ALLOW_PLUGINS: true
         RENOVATE_ALLOW_SCRIPTS: true
