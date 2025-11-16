@@ -26,10 +26,10 @@ runs:
       env:
         RENOVATE_ALLOW_PLUGINS: true
         RENOVATE_ALLOW_SCRIPTS: true
-        RENOVATE_ALLOWED_COMMANDS: "[\"git --all add\"]"
+        RENOVATE_ALLOWED_COMMANDS: "[\"git add --all\"]"
         RENOVATE_AUTODISCOVER: true
         RENOVATE_BINARY_SOURCE: docker
-        RENOVATE_POST_UPGRADE_TASKS: "{\"commands\": [\"git --all add\"], \"fileFilters\": [\"**/**\"], \"executionMode\": \"update\"}"
+        RENOVATE_POST_UPGRADE_TASKS: "{\"commands\": [\"git add --all\"], \"fileFilters\": [\"**/**\"], \"executionMode\": \"update\"}"
         RENOVATE_DOCKER_CLI_OPTIONS: "-t -e=COMPOSER_IGNORE_PLATFORM_REQS=1"
         RENOVATE_HOST_RULES: ${{ inputs.hostRules }}
         RENOVATE_DRY_RUN: "null"
