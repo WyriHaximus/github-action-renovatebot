@@ -29,7 +29,7 @@ runs:
         RENOVATE_ALLOWED_COMMANDS: "[\"git add .gitattributes .gitignore .github .helm .terraform --all || true\"]"
         RENOVATE_AUTODISCOVER: true
         RENOVATE_BINARY_SOURCE: docker
-        RENOVATE_POST_UPGRADE_TASKS: "{\"commands\": [\"git add .gitattributes .gitignore .github .helm .terraform --all || true\"], \"fileFilters\": [\"**/**\", \"**/*\"], \"executionMode\": \"update\"}"
+        RENOVATE_POST_UPGRADE_TASKS: "{\"commands\": [\"git add .gitattributes .gitignore .github .helm .terraform --all || true\"], \"fileFilters\": [\"**/**\", \"**/*\", \".gitattributes\", \".gitignore\", \".github\", \".helm\", \".terraform\"], \"executionMode\": \"update\"}"
         RENOVATE_DOCKER_CLI_OPTIONS: "-t -e=COMPOSER_IGNORE_PLATFORM_REQS=1"
         RENOVATE_HOST_RULES: ${{ inputs.hostRules }}
         RENOVATE_DRY_RUN: "null"
