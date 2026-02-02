@@ -38,5 +38,6 @@ runs:
         RENOVATE_ONBOARDING_CONFIG: "{\"$schema\":\"https://docs.renovatebot.com/renovate-schema.json\",\"extends\":[\"github>WyriHaximus/renovate-config:php-package\"]}"
         RENOVATE_ONBOARDING_CONFIG_FILE_NAME: ".github/renovate.json"
         RENOVATE_ONBOARDING_REBASE_CHECKBOX: "true"
+        RENOVATE_ALLOW_SHELL_EXECUTOR_FOR_POST_UPGRADE_COMMANDS: "true"
         LOG_LEVEL: ${{ inputs.logLevel }}
         LOG_FORMAT: ${{ inputs.logLevel == 'debug' && 'json' || '' }}
