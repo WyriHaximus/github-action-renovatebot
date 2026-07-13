@@ -19,7 +19,7 @@ runs:
   using: "composite"
   steps:
     - name: Self-hosted Renovate
-      uses: renovatebot/github-action@ea850436a5fe75c0925d583c7a02c60a5865461d # v43.0.20
+      uses: renovatebot/github-action@22e0a16091fc706b04affe6ae53d5e3358ac4023 # v46.1.19
       with:
         token: ${{ inputs.renovateAppToken }}
         mount-docker-socket: true
