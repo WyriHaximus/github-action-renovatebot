@@ -81,8 +81,10 @@ This action provides a pre-configured Renovate setup with:
 
 - Autodiscovery enabled
 - Plugin and script execution allowed
-- Docker binary source
-- Post-upgrade tasks for git operations
+- Install binary source (containerbase `install-tool` in the Renovate image)
+- Docker socket mounted for post-upgrade `make on-install-or-update` targets that run QA tooling in WyriHaximus PHP containers
+- `COMPOSER_IGNORE_PLATFORM_REQS` injected for Composer child processes
+- Post-upgrade tasks for `make on-install-or-update` and git operations
 - PHP package configuration via WyriHaximus/renovate-config
 - Onboarding configuration with rebase checkbox
 
