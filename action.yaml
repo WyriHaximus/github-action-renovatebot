@@ -19,18 +19,20 @@ runs:
   using: "composite"
   steps:
     - name: Self-hosted Renovate
-      uses: renovatebot/github-action@ea850436a5fe75c0925d583c7a02c60a5865461d # v43.0.20
+      uses: renovatebot/github-action@e09d604f8f803bb527bd8321ed5be06c460b8682 # v46.2.2
       with:
         token: ${{ inputs.renovateAppToken }}
         mount-docker-socket: true
+        docker-cmd-file: ${{ github.action_path }}/renovate-entrypoint.sh
+        docker-user: root
       env:
         RENOVATE_ALLOW_PLUGINS: true
         RENOVATE_ALLOW_SCRIPTS: true
-        RENOVATE_ALLOWED_COMMANDS: "[\"make on-install-or-update || true\", \"git add --all\", \"git add .gitattributes || true\", \"git add .gitignore || true\", \"git add .github || true\", \"git add .helm || true\", \"git add .terraform || true\"]"
+        RENOVATE_ALLOWED_COMMANDS: "[\"^git add --all$\", \"^git reset HEAD$\"]"
         RENOVATE_AUTODISCOVER: true
-        RENOVATE_BINARY_SOURCE: docker
-        RENOVATE_POST_UPGRADE_TASKS: "{\"commands\": [\"make on-install-or-update || true\", \"git add --all\", \"git add .gitattributes || true\", \"git add .gitignore || true\", \"git add .github || true\", \"git add .helm || true\", \"git add .terraform || true\"], \"fileFilters\": [\"**/**\", \"**/*\", \".gitattributes\", \".gitignore\", \".github\", \".helm\", \".terraform\"], \"executionMode\": \"update\"}"
-        RENOVATE_DOCKER_CLI_OPTIONS: "-t -e=COMPOSER_IGNORE_PLATFORM_REQS=1"
+        RENOVATE_BINARY_SOURCE: install
+        RENOVATE_POST_UPGRADE_TASKS: "{\"commands\": [\"git add --all\", \"git reset HEAD\"], \"fileFilters\": [\"**/*\"], \"executionMode\": \"branch\"}"
+        RENOVATE_CUSTOM_ENV_VARIABLES: "{\"COMPOSER_IGNORE_PLATFORM_REQS\":\"1\"}"
         RENOVATE_HOST_RULES: ${{ inputs.hostRules }}
         RENOVATE_DRY_RUN: "null"
         RENOVATE_IGNORE_PLUGINS: false
