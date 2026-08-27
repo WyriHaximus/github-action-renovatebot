@@ -82,11 +82,35 @@ This action provides a pre-configured Renovate setup with:
 - Autodiscovery enabled
 - Plugin and script execution allowed
 - Install binary source (containerbase `install-tool` in the Renovate image)
-- Docker socket mounted for post-upgrade `make on-install-or-update` targets that run QA tooling in WyriHaximus PHP containers
+- Docker socket mounted for post-upgrade `make after-renovate` targets that run QA tooling in WyriHaximus PHP containers
 - `COMPOSER_IGNORE_PLATFORM_REQS` injected for Composer child processes
-- Post-upgrade tasks for `make on-install-or-update` and git operations
+- Post-upgrade tasks for `make after-renovate || true`, `git add --all`, and `git reset HEAD`
 - PHP package configuration via WyriHaximus/renovate-config
 - Onboarding configuration with rebase checkbox
+
+## Post-upgrade tasks
+
+After dependency updates, Renovate runs these commands on each branch:
+
+1. `make after-renovate || true` — run project-specific post-upgrade logic; `|| true` prevents a failing target from blocking the rest of the workflow
+2. `git add --all` — stage generated changes
+3. `git reset HEAD` — unstage everything so Renovate can commit only the files it changed
+
+Shell execution is enabled via `RENOVATE_ALLOW_SHELL_EXECUTOR_FOR_POST_UPGRADE_COMMANDS`, so operators like `||` work in the command string.
+
+### Allowed command regex escaping
+
+Self-hosted Renovate requires every post-upgrade command to match a pattern in `RENOVATE_ALLOWED_COMMANDS`. Those patterns are regular expressions, not shell commands.
+
+For `make after-renovate || true`, the pipe characters must be escaped in the regex. Unescaped `||` is regex alternation and matches far more than intended.
+
+| Layer | Value |
+|-------|-------|
+| Shell command (`RENOVATE_POST_UPGRADE_TASKS`) | `make after-renovate \|\| true` |
+| Regex pattern (what Renovate matches against) | `^make after-renovate \|\| true$` |
+| In `action.yaml` (`RENOVATE_ALLOWED_COMMANDS`) | `"^make after-renovate \\\\|\\\\| true$"` |
+
+The post-upgrade task uses literal `||`. The allowed-command entry needs `\\\\|\\\\|` in YAML so Renovate receives `\|\|` in the regex.
 
 ## License
 
