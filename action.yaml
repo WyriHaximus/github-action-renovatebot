@@ -28,10 +28,10 @@ runs:
       env:
         RENOVATE_ALLOW_PLUGINS: true
         RENOVATE_ALLOW_SCRIPTS: true
-        RENOVATE_ALLOWED_COMMANDS: "[\"^git add --all$\", \"^git reset HEAD$\"]"
+        RENOVATE_ALLOWED_COMMANDS: "[\"^make after-renovate \\\\|\\\\| true$\", \"^git add --all$\", \"^git reset HEAD$\"]"
         RENOVATE_AUTODISCOVER: true
         RENOVATE_BINARY_SOURCE: install
-        RENOVATE_POST_UPGRADE_TASKS: "{\"commands\": [\"git add --all\", \"git reset HEAD\"], \"fileFilters\": [\"**/*\"], \"executionMode\": \"branch\"}"
+        RENOVATE_POST_UPGRADE_TASKS: "{\"commands\": [\"make after-renovate || true\", \"git add --all\", \"git reset HEAD\"], \"fileFilters\": [\"**/*\"], \"executionMode\": \"branch\"}"
         RENOVATE_CUSTOM_ENV_VARIABLES: "{\"COMPOSER_IGNORE_PLATFORM_REQS\":\"1\"}"
         RENOVATE_HOST_RULES: ${{ inputs.hostRules }}
         RENOVATE_DRY_RUN: "null"
