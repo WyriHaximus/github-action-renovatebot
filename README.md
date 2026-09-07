@@ -83,10 +83,25 @@ This action provides a pre-configured Renovate setup with:
 - Plugin and script execution allowed
 - Install binary source (containerbase `install-tool` in the Renovate image)
 - Docker socket mounted for post-upgrade `make after-renovate` targets that run QA tooling in WyriHaximus PHP containers
+- Composer lock file updates routed through the project's expected PHP environment (see below)
 - `COMPOSER_IGNORE_PLATFORM_REQS` injected for Composer child processes
 - Post-upgrade tasks for `make after-renovate || true`, `git add --all`, and `git reset HEAD`
 - PHP package configuration via WyriHaximus/renovate-config
 - Onboarding configuration with rebase checkbox
+
+## Composer during lock file updates
+
+Renovate runs `composer` when updating `composer.lock`. [`renovate-entrypoint.sh`](renovate-entrypoint.sh) installs a wrapper at `/usr/local/lib/renovate-action/bin/composer` and prepends it to `PATH`, so Composer plugins (Mammatus, OpenTelemetry, and others) run in a PHP environment with the required extensions.
+
+The wrapper must not replace containerbase's composer binary. Renovate runs `install-tool composer` as `ubuntu` and needs write access to `/opt/containerbase/bin/composer`.
+
+Routing order:
+
+1. **`make run -- composer …`** — when the repo Makefile defines `run` and Docker is available (WyriHaximus PHP projects). `--` passes Renovate's composer flags as make goals, not make options.
+2. **Direct Docker** — `ghcr.io/wyrihaximusnet/php:${version}-nts-alpine-slim-dev` when `make run` is unavailable
+3. **Containerbase composer** — when Docker is unavailable
+
+[`action.yaml`](action.yaml) mounts the Docker socket and action directory (`docker-volumes` uses `;` as separator per [renovatebot/github-action](https://github.com/renovatebot/github-action)). The entrypoint runs as root, chmods the Docker socket, then drops to `ubuntu`. Makefile `run` detection uses grep (not `make -qp`) to avoid recursion from `$(shell composer …)` at parse time. Nested composer calls use a re-entry guard (`RENOVATE_COMPOSER_WRAPPER_ACTIVE`) that falls back to containerbase composer. Plugins stay enabled (`RENOVATE_IGNORE_PLUGINS: false`).
 
 ## Post-upgrade tasks
 

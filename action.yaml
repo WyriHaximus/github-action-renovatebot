@@ -24,8 +24,10 @@ runs:
         token: ${{ inputs.renovateAppToken }}
         mount-docker-socket: true
         docker-cmd-file: ${{ github.action_path }}/renovate-entrypoint.sh
+        docker-volumes: /tmp:/tmp;${{ github.action_path }}:${{ github.action_path }}:ro
         docker-user: root
       env:
+        RENOVATE_ACTION_PATH: ${{ github.action_path }}
         RENOVATE_ALLOW_PLUGINS: true
         RENOVATE_ALLOW_SCRIPTS: true
         RENOVATE_ALLOWED_COMMANDS: "[\"^make after-renovate \\\\|\\\\| true$\", \"^git add --all$\", \"^git reset HEAD$\"]"
