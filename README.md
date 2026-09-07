@@ -97,8 +97,8 @@ The wrapper must not replace containerbase's composer binary. Renovate runs `ins
 
 Routing order:
 
-1. **`make run -- composer …`** — when the repo Makefile defines `run` and Docker is available (WyriHaximus PHP projects). `--` passes Renovate's composer flags as make goals, not make options.
-2. **Direct Docker** — `ghcr.io/wyrihaximusnet/php:${version}-nts-alpine-slim-dev` when `make run` is unavailable
+1. **`make run -- composer …`** — when the repo Makefile defines `run`, Docker is available, and `NEEDS_DOCKER_SOCKET` is not `TRUE`. `--` passes Renovate's composer flags as make goals, not make options.
+2. **Direct Docker** — when `make run` is unavailable, or when `NEEDS_DOCKER_SOCKET=TRUE` (WyriHaximus makefiles drop `--user` in that case, which breaks writing `composer.lock` under Renovate). Uses `ghcr.io/wyrihaximusnet/php:${version}-nts-alpine-slim-dev` with `--user=$(id -u):$(id -g)`.
 3. **Containerbase composer** — when Docker is unavailable
 
 [`action.yaml`](action.yaml) mounts the Docker socket and action directory (`docker-volumes` uses `;` as separator per [renovatebot/github-action](https://github.com/renovatebot/github-action)). The entrypoint runs as root, chmods the Docker socket, then drops to `ubuntu`. Makefile `run` detection uses grep (not `make -qp`) to avoid recursion from `$(shell composer …)` at parse time. Nested composer calls use a re-entry guard (`RENOVATE_COMPOSER_WRAPPER_ACTIVE`) that falls back to containerbase composer. Plugins stay enabled (`RENOVATE_IGNORE_PLUGINS: false`).

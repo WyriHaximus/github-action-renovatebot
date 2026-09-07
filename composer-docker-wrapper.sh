@@ -23,6 +23,10 @@ containerbase_composer() {
   PATH="$path_without_wrapper" command -v composer 2>/dev/null || true
 }
 
+makefile_needs_docker_socket() {
+  grep -hE '^NEEDS_DOCKER_SOCKET[[:space:]]*=[[:space:]]*(TRUE|"TRUE")' Makefile makefile 2>/dev/null | grep -q .
+}
+
 run_via_make() {
   debug_log "routing via make run"
   RENOVATE_COMPOSER_WRAPPER_ACTIVE=1 exec make run -- composer "$@"
@@ -34,12 +38,31 @@ run_via_docker() {
   composer_cache="${COMPOSER_CACHE_DIR:-${HOME}/.composer/cache}"
   workdir=$(pwd)
 
+  if [ -f etc/qa/zzz_disable_otel_attr_hooks.ini ]; then
+    RENOVATE_COMPOSER_WRAPPER_ACTIVE=1 exec docker run --rm -i \
+      --cap-drop=ALL \
+      --security-opt=no-new-privileges=true \
+      --user="$(id -u):$(id -g)" \
+      -e "OTEL_PHP_FIBERS_ENABLED=${OTEL_PHP_FIBERS_ENABLED:-true}" \
+      -e "COMPOSER_IGNORE_PLATFORM_REQS=${COMPOSER_IGNORE_PLATFORM_REQS:-1}" \
+      -e "OTEL_PHP_DISABLED_INSTRUMENTATIONS=all" \
+      -v "${workdir}:${workdir}" \
+      -w "${workdir}" \
+      -v "${workdir}/.git:${workdir}/.git:ro" \
+      -v "${composer_cache}:/opt/app/.composer/cache" \
+      -v "${workdir}/etc/qa/zzz_disable_otel_attr_hooks.ini:/usr/local/etc/php/conf.d/zzz_disable_otel_attr_hooks.ini:ro" \
+      --ulimit nofile=1000000 \
+      "${PHP_IMAGE}:${php_version}-nts-alpine-slim-dev" \
+      composer "$@"
+  fi
+
   RENOVATE_COMPOSER_WRAPPER_ACTIVE=1 exec docker run --rm -i \
     --cap-drop=ALL \
     --security-opt=no-new-privileges=true \
     --user="$(id -u):$(id -g)" \
     -e "OTEL_PHP_FIBERS_ENABLED=${OTEL_PHP_FIBERS_ENABLED:-true}" \
     -e "COMPOSER_IGNORE_PLATFORM_REQS=${COMPOSER_IGNORE_PLATFORM_REQS:-1}" \
+    -e "OTEL_PHP_DISABLED_INSTRUMENTATIONS=all" \
     -v "${workdir}:${workdir}" \
     -w "${workdir}" \
     -v "${workdir}/.git:${workdir}/.git:ro" \
@@ -65,7 +88,7 @@ if [ "${RENOVATE_COMPOSER_WRAPPER_ACTIVE:-}" = "1" ]; then
   run_via_containerbase "$@"
 fi
 
-if docker_available && has_make_run_target; then
+if docker_available && has_make_run_target && ! makefile_needs_docker_socket; then
   run_via_make "$@"
 fi
 
