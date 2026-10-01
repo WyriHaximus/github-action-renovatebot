@@ -29,7 +29,10 @@ makefile_needs_docker_socket() {
 
 run_via_make() {
   debug_log "routing via make run"
-  RENOVATE_COMPOSER_WRAPPER_ACTIVE=1 exec make run -- composer "$@"
+  # Single Make goal: avoid "composer"/"update"/"install" being built as separate targets.
+  cmd=$(printf 'composer %s' "$(printf '%s ' "$@")")
+  cmd=${cmd%" "}
+  RENOVATE_COMPOSER_WRAPPER_ACTIVE=1 exec make run -- "$cmd"
 }
 
 run_via_docker() {
