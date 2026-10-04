@@ -34,7 +34,7 @@ runs:
         RENOVATE_AUTODISCOVER: true
         RENOVATE_BINARY_SOURCE: install
         RENOVATE_POST_UPGRADE_TASKS: "{\"commands\": [\"make after-renovate || true\", \"git add --all\", \"git reset HEAD\"], \"fileFilters\": [\"**/*\"], \"executionMode\": \"branch\"}"
-        RENOVATE_CUSTOM_ENV_VARIABLES: "{\"COMPOSER_IGNORE_PLATFORM_REQS\":\"1\"}"
+        RENOVATE_CUSTOM_ENV_VARIABLES: "{\"COMPOSER_IGNORE_PLATFORM_REQS\":\"1\",\"COMPOSER_CACHE_DIR\":\"/tmp/.composer-php/cache\"}"
         RENOVATE_HOST_RULES: ${{ inputs.hostRules }}
         RENOVATE_DRY_RUN: "null"
         RENOVATE_IGNORE_PLUGINS: false

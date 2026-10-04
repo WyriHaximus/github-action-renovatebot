@@ -18,10 +18,17 @@ if [ -S /var/run/docker.sock ]; then
   chmod 666 /var/run/docker.sock
 fi
 
+COMPOSER_CACHE_DIR="${COMPOSER_CACHE_DIR:-/tmp/.composer-php/cache}"
+mkdir -p "$COMPOSER_CACHE_DIR"
+if id ubuntu >/dev/null 2>&1; then
+  chown ubuntu:ubuntu "$COMPOSER_CACHE_DIR" 2>/dev/null || true
+fi
+
 if id ubuntu >/dev/null 2>&1; then
   exec runuser -u ubuntu -- env \
     PATH="$PATH" \
     LOG_LEVEL="${LOG_LEVEL:-}" \
+    COMPOSER_CACHE_DIR="$COMPOSER_CACHE_DIR" \
     RENOVATE_COMPOSER_WRAPPER_BIN="${RENOVATE_COMPOSER_WRAPPER_BIN:-}" \
     renovate "$@"
 fi

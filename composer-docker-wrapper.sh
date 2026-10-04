@@ -27,6 +27,21 @@ makefile_needs_docker_socket() {
   grep -hE '^NEEDS_DOCKER_SOCKET[[:space:]]*=[[:space:]]*(TRUE|"TRUE")' Makefile makefile 2>/dev/null | grep -q .
 }
 
+is_global_cache_dir_query() {
+  [ "$1" = "config" ] && [ "$2" = "--global" ] && [ "$3" = "cache-dir" ]
+}
+
+run_global_cache_dir_query() {
+  debug_log "global cache-dir query"
+  RENOVATE_COMPOSER_WRAPPER_ACTIVE=1
+  composer_bin=$(containerbase_composer)
+  if [ -n "$composer_bin" ] && [ -x "$composer_bin" ]; then
+    exec "$composer_bin" "$@"
+  fi
+  printf '%s\n' "${COMPOSER_CACHE_DIR:-/tmp/.composer-php/cache}"
+  exit 0
+}
+
 run_via_make() {
   debug_log "routing via make run"
   # Single Make goal: avoid "composer"/"update"/"install" being built as separate targets.
@@ -89,6 +104,10 @@ run_via_containerbase() {
 if [ "${RENOVATE_COMPOSER_WRAPPER_ACTIVE:-}" = "1" ]; then
   debug_log "re-entry guard active"
   run_via_containerbase "$@"
+fi
+
+if is_global_cache_dir_query "$@"; then
+  run_global_cache_dir_query "$@"
 fi
 
 if docker_available && has_make_run_target && ! makefile_needs_docker_socket; then
